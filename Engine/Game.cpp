@@ -20,16 +20,11 @@
  ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
-#include "SpriteCodex.h"
 
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd ),
-	brd( gfx ),
-	rng( std::random_device()()),
-	snek({2,2}),
-	goal(rng,brd,snek)
+	gfx( wnd )
 {
 }
 
@@ -43,78 +38,8 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	if (gameHasStarted == false)
-	{
-		if (wnd.kbd.KeyIsPressed(VK_RETURN))
-		{
-			gameHasStarted = true;
-		}
-	}
-	else
-	{
-		brd.DrawBorder();
-		if (!gameIsOver)
-		{
-
-			if (wnd.kbd.KeyIsPressed(VK_UP))
-			{
-				delta_loc = { 0,-1 };
-			}
-			else if (wnd.kbd.KeyIsPressed(VK_DOWN))
-			{
-				delta_loc = { 0,1 };
-			}
-			else if (wnd.kbd.KeyIsPressed(VK_LEFT))
-			{
-				delta_loc = { -1,0 };
-			}
-			else if (wnd.kbd.KeyIsPressed(VK_RIGHT))
-			{
-				delta_loc = { 1,0 };
-			}
-
-			snek.IncreaseMoveCounter();
-			if (snek.GetSnekMoveCounter() >= snek.GetSnekMovePeriod())
-			{
-				snek.ResetMoveCounter();
-				const Location next = snek.GetNextHeadLocation(delta_loc);
-				if (!brd.IsInsideBoard(next) ||
-					snek.IsInTileExceptEnd(next))
-				{
-					gameIsOver = true;
-				}
-				else
-				{
-					const bool eating = (next == goal.GetLocation());
-					if (eating)
-					{
-						snek.Grow();
-						snek.DecreaseMovePeriod();
-					}
-					snek.MoveBy(delta_loc);
-					if (eating)
-					{
-						goal.Respawn(rng, brd, snek);
-					}
-				}
-			}
-		}
-	}
 }
 
 void Game::ComposeFrame()
 {
-	if (gameHasStarted == false)
-	{
-		SpriteCodex::DrawTitle(200, 200, gfx);
-	}
-	else
-	{
-		snek.Draw(brd);
-		goal.Draw(brd);
-		if (gameIsOver)
-		{
-			SpriteCodex::DrawGameOver(200, 200, gfx);
-		}
-	}
 }
